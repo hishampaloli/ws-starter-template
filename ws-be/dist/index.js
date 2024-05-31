@@ -28,14 +28,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const ws_1 = __importStar(require("ws"));
+const utils_1 = require("./utils");
 const app = (0, express_1.default)();
 const httpServer = app.listen(8080, () => {
     console.log('Server started on http://localhost:8080');
 });
 const wss = new ws_1.WebSocketServer({ server: httpServer });
 let userCount = 0;
-wss.on('connection', (ws) => {
-    ws.on('error', console.error);
+wss.on('connection', (ws, req) => {
+    ws.on('error', utils_1.errorLogger);
+    const clientOrigin = req.headers.origin;
+    if (!(0, utils_1.originIsAllowed)(clientOrigin)) {
+        console.log('Origin not allowed:', clientOrigin);
+        ws.close(1008, 'Origin not allowed');
+        return;
+    }
     ws.on('message', (data, isBinary) => {
         wss.clients.forEach((client) => {
             if (client.readyState === ws_1.default.OPEN) {
