@@ -19,3 +19,9 @@ export const LeavRoomMessage = z.object({
     roomId: z.string(),
     chatId: z.string()
 })
+
+
+export const DeleteRoomMessage = z.object({
+    userId: z.string(),
+    roomId: z.string()
+})
